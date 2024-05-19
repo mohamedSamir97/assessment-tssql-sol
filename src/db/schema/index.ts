@@ -94,18 +94,69 @@ export const teamsRelations = relations(teams, ({ one }) => ({
   }),
 }));
 
-// export const plans = sqliteTable("plans", {
-// todo: add plans table schema
-// });
+// plans table
+export const plans = sqliteTable(
+  "plans",
+  {
+    id: integer("id").primaryKey().notNull(),
+    name: text("name").notNull(),
+    price: integer("price").notNull(),
+    createdAt: timestamp("createdAt").notNull(),
+    updatedAt: timestamp("updatedAt").notNull(),
+  },
 
-// export const subscriptions = sqliteTable("subscriptions", {
-//   // todo: add subscriptions table schema
-// });
+);
 
-// export const orders = sqliteTable("orders", {
-//   // todo: add orders table schema
-// });
+// subscriptions table
+export const subscriptions = sqliteTable(
+  "subscriptions",
+  {
+    id: integer("id").primaryKey().notNull(),
+    teamId: integer("teamId")
+      .notNull()
+      .references(() => teams.id, { onDelete: "restrict" }),
+    planId: integer("planId")
+      .notNull()
+      .references(() => plans.id, { onDelete: "restrict" }),
+    status: text("status").notNull(), // e.g., "active", "canceled", "expired"
+    createdAt: timestamp("createdAt").notNull(),
+    updatedAt: timestamp("updatedAt").notNull(),
+  },
 
-// export const subscriptionActivations = sqliteTable("subscriptionActivations", {
-//   // todo: add subscriptionActivations table schema
-// });
+);
+
+// orders table
+export const orders = sqliteTable(
+  "orders",
+  {
+    id: integer("id").primaryKey().notNull(),
+    subscriptionId: integer("subscriptionId")
+      .notNull()
+      .references(() => subscriptions.id, { onDelete: "restrict" }),
+    amount: integer("amount").notNull(),
+    currency: text("currency").notNull(),
+    status: text("status").notNull(), // e.g., "pending", "paid", "failed"
+    createdAt: timestamp("createdAt").notNull(),
+    updatedAt: timestamp("updatedAt").notNull(),
+  },
+
+);
+
+// subscriptionActivations table
+export const subscriptionActivations = sqliteTable(
+  "subscriptionActivations",
+  {
+    id: integer("id").primaryKey().notNull(),
+    subscriptionId: integer("subscriptionId")
+      .notNull()
+      .references(() => subscriptions.id, { onDelete: "restrict" }),
+    startDate: timestamp("startDate").notNull(),
+    endDate: timestamp("endDate").notNull(),
+    orderId: integer("orderId")
+      .notNull()
+      .references(() => orders.id, { onDelete: "restrict" }),
+    createdAt: timestamp("createdAt").notNull(),
+    updatedAt: timestamp("updatedAt").notNull(),
+  },
+
+);
